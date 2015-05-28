@@ -10,6 +10,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
+
+import jl.json.JsonArray;
+import jl.json.JsonObject;
 
 import org.mule.api.annotations.ConnectionStrategy;
 import org.mule.api.annotations.Connector;
@@ -47,13 +51,36 @@ public class MonitorConnector {
     }
 
     @Processor
-    public void outbound(String msg, String id) {
+    public void outbound(String id, String title, String type, String status, Map data) {
     	cs = getConnectionStrategy().getClientSocket();
     	InetAddress ip = getConnectionStrategy().getIPAddress();
     	int p = getConnectionStrategy().getPort();
     	
     	try {
-            sendData = msg.getBytes();
+    	   
+    	   
+    	   JsonObject object = new JsonObject();
+    	   object.putString("Id", id);
+    	   object.putString("Name", title);
+    	   object.putString("Type", type);
+    	   object.putString("Status", status);
+    	   
+    	   JsonArray array = new JsonArray();
+    	   for (Object o : data.keySet()) {
+    	      JsonObject property = new JsonObject();
+    	      property.putString("name", o.toString());
+    	      String value = data.get(o).toString();
+    	      String valueType = "" + value.charAt(0);
+    	      value = value.substring(2);
+    	      property.putString("type", valueType);
+    	      property.putString("value", value);
+    	      array.addJsonObject(property);
+    	   }
+    	   
+    	   object.putJsonArray("data", array);
+    	   
+    	   
+            sendData = object.toString().getBytes();
 
             System.out.println ("Sending data to " + sendData.length +
                     " bytes to server.");
