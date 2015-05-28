@@ -1,0 +1,3 @@
+<!-- BEGIN_INCLUDE(monitor:greet) -->
+    <monitor:outbound config-ref="" message="#[map-payload:friend]" />
+<!-- END_INCLUDE(monitor:greet) -->
