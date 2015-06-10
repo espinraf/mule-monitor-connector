@@ -10,6 +10,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.log4j.Logger;
 import org.mule.api.ConnectionException;
 import org.mule.api.annotations.components.ConnectionManagement;
 import org.mule.api.annotations.Configurable;
@@ -29,6 +30,7 @@ import org.mule.api.annotations.param.Default;
 @ConnectionManagement(configElementName = "config", friendlyName = "Configuration Monitor")
 public class ConnectorConnectionStrategy {
 
+	final static Logger logger = Logger.getLogger(ConnectorConnectionStrategy.class);
 	DatagramSocket clientSocket = null ;
 	InetAddress IPAddress = null;
     byte[] sendData = new byte[1024];
@@ -81,14 +83,14 @@ public class ConnectorConnectionStrategy {
 
             clientSocket = new DatagramSocket();
 
-            System.out.println ("Attemping to connect to " + getPort() +
-                    ") via UDP port 9090");
-            }
+            //System.out.println ("Attemping to connect to " + getPort() + " via UDP ");
+            
+        }
         catch (UnknownHostException ex) {
-            System.err.println(ex);
+        	logger.error(ex.getMessage());
         }
         catch (IOException ex) {
-            System.err.println(ex);
+        	logger.error(ex.getMessage());
         }
     }
     
@@ -114,5 +116,4 @@ public class ConnectorConnectionStrategy {
         return "1";
     }
     
-
 }

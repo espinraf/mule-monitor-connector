@@ -15,12 +15,11 @@ import java.util.Map;
 import jl.json.JsonArray;
 import jl.json.JsonObject;
 
+import org.apache.log4j.Logger;
 import org.mule.api.annotations.ConnectionStrategy;
 import org.mule.api.annotations.Connector;
-import org.mule.api.annotations.Configurable;
 import org.mule.api.annotations.Processor;
 import org.mule.api.annotations.Source;
-import org.mule.api.annotations.param.Default;
 import org.mule.api.callback.SourceCallback;
 import org.mule.modules.monitor.strategy.ConnectorConnectionStrategy;
 
@@ -33,6 +32,7 @@ import org.mule.modules.monitor.strategy.ConnectorConnectionStrategy;
 @Connector(name="monitor", friendlyName="Monitor")
 public class MonitorConnector {
     
+	final static Logger logger = Logger.getLogger(MonitorConnector.class);
 	DatagramSocket cs;
 	byte[] sendData = new byte[1024];
 	
@@ -45,12 +45,12 @@ public class MonitorConnector {
     	try {
 			callback.process();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
     }
 
-    @Processor
+    @SuppressWarnings("rawtypes")
+	@Processor
     public void outbound(String id, String title, String type, String status, Map data) {
     	cs = getConnectionStrategy().getClientSocket();
     	InetAddress ip = getConnectionStrategy().getIPAddress();
@@ -82,19 +82,18 @@ public class MonitorConnector {
     	   
             sendData = object.toString().getBytes();
 
-            System.out.println ("Sending data to " + sendData.length +
-                    " bytes to server.");
-            System.out.println ("ID " + id);
+            // System.out.println ("Sending data to " + sendData.length + " bytes to server.");
+            // System.out.println ("ID " + id);
 
             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, ip , p);
 
             cs.send(sendPacket);
             }
         catch (UnknownHostException ex) {
-            System.err.println(ex);
+            logger.error(ex.getMessage());
         }
         catch (IOException ex) {
-            System.err.println(ex);
+        	logger.error(ex.getMessage());
         }
         
     }   
